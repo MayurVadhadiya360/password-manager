@@ -40,8 +40,8 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               // app name logo/title
               const Text(
-                "OtakuShelf",
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 42),
+                "Password Manager",
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 36),
               ),
 
               // auth action title
@@ -60,6 +60,7 @@ class _LoginPageState extends State<LoginPage> {
                   border: OutlineInputBorder(),
                   label: Text("Email"),
                   hintText: "Enter you email",
+                  alignLabelWithHint: true,
                   prefixIcon: Icon(Icons.email),
                 ),
               ),
@@ -75,6 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                     border: const OutlineInputBorder(),
                     label: const Text("Password"),
                     hintText: "Enter you password",
+                    alignLabelWithHint: true,
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: GestureDetector(
                       onTap: () {
@@ -131,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                       });
                     },
                     child: (!isLoading)
-                        ? const Text("Login")
+                        ? const Text("Login", style: TextStyle(fontSize: 18),)
                         : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         Navigator.pushNamed(context, "/signup");
                       },
-                      child: const Text("Register")),
+                      child: const Text("Register", style: TextStyle(fontWeight: FontWeight.w800),)),
                 ],
               ),
             ],

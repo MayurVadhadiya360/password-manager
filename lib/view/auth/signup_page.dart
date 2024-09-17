@@ -32,8 +32,8 @@ class _SignUpPageState extends State<SignUpPage> {
             children: [
               // app name logo/title
               const Text(
-                "OtakuShelf",
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 42),
+                "Password Manager",
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 36),
               ),
 
               // auth action title
@@ -45,17 +45,6 @@ class _SignUpPageState extends State<SignUpPage> {
               // fixed height(space) with sized box
               const SizedBox(height: 20),
 
-              // username input
-              TextFormField(
-                controller: usernameController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  label: Text("Username"),
-                  hintText: "Enter your username",
-                  prefixIcon: Icon(Icons.person),
-                ),
-              ),
-
               // fixed height(space) with sized box
               const SizedBox(height: 10),
 
@@ -66,6 +55,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   border: OutlineInputBorder(),
                   label: Text("Email"),
                   hintText: "Enter your email",
+                  alignLabelWithHint: true,
                   prefixIcon: Icon(Icons.email),
                 ),
               ),
@@ -81,6 +71,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   border: const OutlineInputBorder(),
                   label: const Text("Password"),
                   hintText: "Enter your password",
+                  alignLabelWithHint: true,
                   prefixIcon: const Icon(Icons.lock),
                   suffixIcon: GestureDetector(
                     onTap: () {
