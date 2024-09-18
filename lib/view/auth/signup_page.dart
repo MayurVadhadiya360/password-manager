@@ -21,6 +21,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
@@ -30,11 +31,16 @@ class _SignUpPageState extends State<SignUpPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // app name logo/title
-              const Text(
-                "Password Manager",
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 36),
+              // App Logo
+              CircleAvatar(
+                backgroundColor: Colors.white,
+                foregroundImage: AssetImage((isDark)
+                    ? "assets/app-logo-outlined.png"
+                    : "assets/app-logo-filled.png"),
+                radius: 80,
               ),
+
+              const SizedBox(height: 20),
 
               // auth action title
               const Text(
@@ -102,10 +108,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       await AuthService.createAccountWithEmail(
                         emailController.text,
                         passwordController.text,
-                      ).then((value) async {
-                        setState(() {
-                          signupBtnText = "Registering user...";
-                        });
+                      ).then((value) {
                         if (value == "Account Created") {
                           ToastMsg.showToastMsg(
                             msg: value,
@@ -118,7 +121,6 @@ class _SignUpPageState extends State<SignUpPage> {
                           });
 
                           Navigator.pushNamedAndRemoveUntil(
-                            // ignore: use_build_context_synchronously
                             context,
                             "/home",
                             (route) => false,

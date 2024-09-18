@@ -6,7 +6,7 @@ import 'package:password_manager/services/auth_service.dart';
 import 'package:password_manager/theme/theme.dart';
 import 'package:password_manager/view/auth/login_page.dart';
 import 'package:password_manager/view/auth/signup_page.dart';
-import 'package:password_manager/view/home_page.dart';
+import 'package:password_manager/view/home/home_page.dart';
 import 'package:provider/provider.dart';
 
 void main() async {

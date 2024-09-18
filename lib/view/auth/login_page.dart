@@ -20,17 +20,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      // appBar: AppBar(
-      //   toolbarHeight: MediaQuery.of(context).size.height / 4,
-      //   shape: RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.vertical(
-      //       bottom:
-      //           Radius.elliptical(MediaQuery.of(context).size.width, 56.0),
-      //     ),
-      //   ),
-      // ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(18.0),
@@ -38,16 +30,61 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // app name logo/title
-              const Text(
-                "Password Manager",
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 36),
+              // App Logo
+              CircleAvatar(
+                backgroundColor: Colors.white,
+                foregroundImage: AssetImage((isDark)
+                    ? "assets/app-logo-outlined.png"
+                    : "assets/app-logo-filled.png"),
+                radius: 80,
               ),
 
-              // auth action title
-              const Text(
-                "Login",
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: () async {
+                  log("sign_in_with_google");
+                  await AuthService.signInWithGoogle().then(
+                    (value) {
+                      if (value == "Login Successful") {
+                        ToastMsg.showToastMsg(msg: value, status: "success");
+
+                        Navigator.pushReplacementNamed(context, "/home");
+                      } else {
+                        ToastMsg.showToastMsg(msg: value, status: "error");
+                      }
+                    },
+                  );
+                },
+                child: Container(
+                  width: 240, // Maximum width of the button
+                  height: 60, // Maximum height of the button
+                  child: Image.asset(
+                    "assets/sign_in_with_google.jpg",
+                    fit: BoxFit
+                        .contain, // Scales the image to fit within the bounds while maintaining its aspect ratio
+                  ),
+                ),
+              ),
+              // fixed height(space) with sized box
+              const SizedBox(height: 20),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(thickness: 1.0),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      "OR",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(thickness: 1.0),
+                  ),
+                ],
               ),
 
               // fixed height(space) with sized box
@@ -115,14 +152,13 @@ class _LoginPageState extends State<LoginPage> {
                       });
                       await AuthService.loginWithEmail(
                               emailController.text, passwordController.text)
-                          .then((value) async {
+                          .then((value) {
                         if (value == "Login Successful") {
                           ToastMsg.showToastMsg(msg: value, status: "success");
                           setState(() {
                             isLoading = false;
                           });
 
-                          // ignore: use_build_context_synchronously
                           Navigator.pushReplacementNamed(context, "/home");
                         } else {
                           ToastMsg.showToastMsg(msg: value, status: "error");
@@ -133,7 +169,10 @@ class _LoginPageState extends State<LoginPage> {
                       });
                     },
                     child: (!isLoading)
-                        ? const Text("Login", style: TextStyle(fontSize: 18),)
+                        ? const Text(
+                            "Login",
+                            style: TextStyle(fontSize: 18),
+                          )
                         : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -163,7 +202,10 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         Navigator.pushNamed(context, "/signup");
                       },
-                      child: const Text("Register", style: TextStyle(fontWeight: FontWeight.w800),)),
+                      child: const Text(
+                        "Register",
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      )),
                 ],
               ),
             ],
