@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:password_manager/providers/password_model.dart';
 import 'package:password_manager/services/password_encryptor.dart';
 import 'package:password_manager/utils/toast_msg.dart';
@@ -33,15 +32,13 @@ class DBService {
     return success;
   }
 
-  static Future<List<Map<String, dynamic>>> getPasswords() async {
-    User _user = FirebaseAuth.instance.currentUser!;
-
+  static Future<List<Map<String, dynamic>>> getPasswords(String uid) async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("Passwords")
           .where(
             'uid',
-            isEqualTo: _user.uid,
+            isEqualTo: uid,
           )
           .get();
 

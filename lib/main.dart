@@ -1,13 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:password_manager/firebase_options.dart';
-import 'package:password_manager/providers/password_provider.dart';
 import 'package:password_manager/services/auth_service.dart';
 import 'package:password_manager/theme/theme.dart';
 import 'package:password_manager/view/auth/login_page.dart';
 import 'package:password_manager/view/auth/signup_page.dart';
 import 'package:password_manager/view/home/home_page.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,25 +21,18 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => PasswordProvider(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.system,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        routes: {
-          "/": (context) => const CheckUser(),
-          "/login": (context) => const LoginPage(),
-          "/signup": (context) => const SignUpPage(),
-          "/home": (context) => const HomePage(),
-        },
-      ),
+    return MaterialApp(
+      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.system,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      routes: {
+        "/": (context) => const CheckUser(),
+        "/login": (context) => const LoginPage(),
+        "/signup": (context) => const SignUpPage(),
+        "/home": (context) => const BasePage(),
+      },
     );
   }
 }

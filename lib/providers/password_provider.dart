@@ -16,29 +16,14 @@ class PasswordProvider extends ChangeNotifier {
 
   PasswordProvider() {
     fetchPassword();
-
-    // add_password(
-    //   site: "github.com",
-    //   username: "mayurvadhadiya5@gmail.com",
-    //   password: "DragonBallSuper@123",
-    //   note: "Some note",
-    // );
-    // add_password(
-    //   site: "instagram.com",
-    //   username: "6354464807",
-    //   password: "Mayur@63544",
-    // );
-    // add_password(
-    //   site: "https://leetcode.com/accounts/signup/",
-    //   username: "Mayur1304",
-    //   password: "Mayur@leetcode123",
-    // );
   }
 
   Future<void> fetchPassword() async {
     isLoading = true;
     notifyListeners();
-    List<Map<String, dynamic>> passwordMaps = await DBService.getPasswords();
+    User _user = FirebaseAuth.instance.currentUser!;
+    List<Map<String, dynamic>> passwordMaps =
+        await DBService.getPasswords(_user.uid);
 
     List<PasswordModel> tempPasswords = [];
 

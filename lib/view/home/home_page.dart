@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:password_manager/providers/password_model.dart';
@@ -7,6 +8,30 @@ import 'package:password_manager/providers/password_provider.dart';
 import 'package:password_manager/services/auth_service.dart';
 import 'package:password_manager/view/home/password_form.dart';
 import 'package:provider/provider.dart';
+
+class BasePage extends StatefulWidget {
+  const BasePage({super.key});
+
+  @override
+  State<BasePage> createState() => _BasePageState();
+}
+
+class _BasePageState extends State<BasePage> {
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => PasswordProvider(),
+        ),
+      ],
+      // builder: (context, child) {
+      //   return HomePage();
+      // },
+      child: HomePage(),
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,13 +41,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Future<void> showAddPasswordDialog(BuildContext context) async {
-    PasswordProvider passwordProvider =
-        Provider.of<PasswordProvider>(context, listen: false);
+  Future<void> showAddPasswordDialog(
+      BuildContext context, PasswordProvider passwordProvider) async {
     return await showDialog(
       context: context,
       builder: (context) {
         return PasswordForm(
+          passwordProvider: passwordProvider,
           showPasswordGeneratorIcon: true,
           onSave: (site, username, password, note) async {
             // loading circle dialog
@@ -59,19 +84,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> showUpdatablePasswordDialog(
-    BuildContext context, {
+    BuildContext context,
+    PasswordProvider passwordProvider, {
     required String id,
     String? initSite,
     String? initUsername,
     String? initialPassword,
     String? initialNote,
   }) async {
-    PasswordProvider passwordProvider =
-        Provider.of<PasswordProvider>(context, listen: false);
     return await showDialog(
       context: context,
       builder: (context) {
         return PasswordForm(
+          passwordProvider: passwordProvider,
           isEdit: false,
           showPasswordGeneratorIcon: true,
           initialSite: initSite,
@@ -130,6 +155,7 @@ class _HomePageState extends State<HomePage> {
             log("View Password $index");
             await showUpdatablePasswordDialog(
               context,
+              passwordProvider,
               id: passwordData.id,
               initSite: passwordData.site,
               initUsername: passwordData.username,
@@ -189,7 +215,24 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Password Manager"),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Password Manager",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '${FirebaseAuth.instance.currentUser!.email}',
+                style: TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
           actions: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -235,6 +278,7 @@ class _HomePageState extends State<HomePage> {
                                 onTap: () async {
                                   await showUpdatablePasswordDialog(
                                     context,
+                                    passwordProvider,
                                     id: passwordData.id,
                                     initSite: passwordData.site,
                                     initUsername: passwordData.username,
@@ -303,7 +347,7 @@ class _HomePageState extends State<HomePage> {
               ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            await showAddPasswordDialog(context);
+            await showAddPasswordDialog(context, passwordProvider);
           },
           shape: const CircleBorder(),
           child: const Icon(CupertinoIcons.add),

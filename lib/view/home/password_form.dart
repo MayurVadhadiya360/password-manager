@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:password_manager/providers/password_provider.dart';
 import 'package:password_manager/utils/toast_msg.dart';
-import 'package:provider/provider.dart';
 
 class PasswordForm extends StatefulWidget {
   const PasswordForm({
     Key? key,
     required this.onSave,
+    required this.passwordProvider,
     this.initialSite,
     this.initialUsername,
     this.initialPassword,
@@ -21,6 +21,8 @@ class PasswordForm extends StatefulWidget {
   // Callback for OK button
   final Future<bool> Function(
       String site, String username, String password, String note) onSave;
+
+  final PasswordProvider passwordProvider;
 
   final bool isEdit;
   final bool showPasswordGeneratorIcon;
@@ -92,7 +94,7 @@ class _PasswordFormState extends State<PasswordForm> {
 
   @override
   Widget build(BuildContext context) {
-    PasswordProvider passwordProvider = Provider.of<PasswordProvider>(context);
+    // PasswordProvider passwordProvider = Provider.of<PasswordProvider>(context);
     return AlertDialog(
       title: Text(
         (widget.isEdit)
@@ -201,8 +203,8 @@ class _PasswordFormState extends State<PasswordForm> {
                           tooltip: "Generate Password",
                           onPressed: () {
                             log("Generate Password");
-                            passwordController.text =
-                                passwordProvider.generateSecurePassword(16);
+                            passwordController.text = widget.passwordProvider
+                                .generateSecurePassword(16);
                           },
                           icon: Icon(Icons.insights),
                         ),

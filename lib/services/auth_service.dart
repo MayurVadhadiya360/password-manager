@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -10,9 +12,11 @@ class AuthService {
           .createUserWithEmailAndPassword(email: email, password: password);
       return "Account Created";
     } on FirebaseAuthException catch (e) {
-      return e.message.toString();
+      log(e.message.toString());
+      return "Failed to signup";
     } catch (e) {
-      return e.toString();
+      log(e.toString());
+      return "Failed to signup";
     }
   }
 
@@ -23,9 +27,11 @@ class AuthService {
           .signInWithEmailAndPassword(email: email, password: password);
       return "Login Successful";
     } on FirebaseAuthException catch (e) {
-      return e.message.toString();
+      log(e.message.toString());
+      return "Failed to login";
     } catch (e) {
-      return e.toString();
+      log(e.toString());
+      return "Failed to login";
     }
   }
 
@@ -44,9 +50,11 @@ class AuthService {
 
       return "Login Successful";
     } on FirebaseAuthException catch (e) {
-      return e.message.toString();
+      log(e.message.toString());
+      return "Failed to sign in with google";
     } catch (e) {
-      return e.toString();
+      log(e.toString());
+      return "Failed to sign in with google";
     }
   }
 
@@ -56,13 +64,21 @@ class AuthService {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       return "Password reset link sent to your email!";
     } catch (e) {
-      return e.toString();
+      log(e.toString());
+      return "Failed to sent password reset link";
     }
   }
 
   // logout the user
-  static Future logout() async {
-    await FirebaseAuth.instance.signOut();
+  static Future<String> logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
+      return "logged out";
+    } catch (e) {
+      log(e.toString());
+      return "Failed to logout";
+    }
   }
 
   // check whether the user is sign in or not
