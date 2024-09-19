@@ -111,6 +111,78 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showContextMenu(BuildContext context, Offset position, int index,
+      PasswordModel passwordData) async {
+    PasswordProvider passwordProvider =
+        Provider.of<PasswordProvider>(context, listen: false);
+    await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx, // x position
+        position.dy, // y position
+        position.dx + 1, // small offset on the right
+        position.dy + 1, // small offset below
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      items: [
+        PopupMenuItem(
+          onTap: () async {
+            log("View Password $index");
+            await showUpdatablePasswordDialog(
+              context,
+              id: passwordData.id,
+              initSite: passwordData.site,
+              initUsername: passwordData.username,
+              initialPassword: passwordData.password,
+              initialNote: passwordData.note,
+            );
+          },
+          value: 'View',
+          child: Text('View'),
+        ),
+        PopupMenuItem(
+          onTap: () {
+            log("Delete Password $index");
+            log("delete: ${passwordData.id}");
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text("Are you sure want to delete password?")),
+                  // content: Text(
+                  //     "Are you sure want to delete password?"),
+                  actionsAlignment: MainAxisAlignment.spaceBetween,
+                  actions: [
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Cancel"),
+                    ),
+                    FilledButton(
+                      onPressed: () async {
+                        await passwordProvider.delete_password(passwordData.id);
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Confirm"),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          value: 'Delete',
+          child: Text(
+            'Delete',
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     PasswordProvider passwordProvider = Provider.of<PasswordProvider>(context);
@@ -148,69 +220,80 @@ class _HomePageState extends State<HomePage> {
 
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: ListTile(
-                              tileColor: Theme.of(context).splashColor,
-                              shape: StadiumBorder(),
-                              onTap: () async {
-                                await showUpdatablePasswordDialog(
+                            child: GestureDetector(
+                              onLongPressStart: (details) {
+                                _showContextMenu(
                                   context,
-                                  id: passwordData.id,
-                                  initSite: passwordData.site,
-                                  initUsername: passwordData.username,
-                                  initialPassword: passwordData.password,
-                                  initialNote: passwordData.note,
+                                  details.globalPosition,
+                                  index,
+                                  passwordData,
                                 );
                               },
-                              title: Text(
-                                passwordData.site!,
-                                style: TextStyle(fontSize: 24),
-                              ),
-                              subtitle: Text(passwordData.username!),
-                              leading: CircleAvatar(
-                                backgroundColor: Theme.of(context)
-                                    .primaryColorLight
-                                    .withOpacity(0.6),
-                                child: (passwordData.faviconUrl != null)
-                                    ? Image.network(passwordData.faviconUrl!)
-                                    : Icon(Icons.public),
-                              ),
-                              trailing: IconButton(
-                                icon: Icon(Icons.delete),
-                                color: Colors.red,
-                                onPressed: () {
-                                  log("delete: ${passwordData.id}");
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Text(
-                                                "Are you sure want to delete password?")),
-                                        // content: Text(
-                                        //     "Are you sure want to delete password?"),
-                                        actionsAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        actions: [
-                                          OutlinedButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text("Cancel"),
-                                          ),
-                                          FilledButton(
-                                            onPressed: () {
-                                              passwordProvider.delete_password(
-                                                  passwordData.id);
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text("Confirm"),
-                                          ),
-                                        ],
-                                      );
-                                    },
+                              child: ListTile(
+                                tileColor: Theme.of(context).splashColor,
+                                shape: StadiumBorder(),
+                                onTap: () async {
+                                  await showUpdatablePasswordDialog(
+                                    context,
+                                    id: passwordData.id,
+                                    initSite: passwordData.site,
+                                    initUsername: passwordData.username,
+                                    initialPassword: passwordData.password,
+                                    initialNote: passwordData.note,
                                   );
                                 },
+                                title: Text(
+                                  passwordData.site!,
+                                  style: TextStyle(fontSize: 24),
+                                ),
+                                subtitle: Text(passwordData.username!),
+                                leading: CircleAvatar(
+                                  backgroundColor: Theme.of(context)
+                                      .primaryColorLight
+                                      .withOpacity(0.6),
+                                  child: (passwordData.faviconUrl != null)
+                                      ? Image.network(passwordData.faviconUrl!)
+                                      : Icon(Icons.public),
+                                ),
+                                trailing: IconButton(
+                                  icon: Icon(Icons.delete),
+                                  color: Colors.red,
+                                  onPressed: () {
+                                    log("delete: ${passwordData.id}");
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                  "Are you sure want to delete password?")),
+                                          // content: Text(
+                                          //     "Are you sure want to delete password?"),
+                                          actionsAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          actions: [
+                                            OutlinedButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text("Cancel"),
+                                            ),
+                                            FilledButton(
+                                              onPressed: () async {
+                                                await passwordProvider
+                                                    .delete_password(
+                                                        passwordData.id);
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text("Confirm"),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
                           );

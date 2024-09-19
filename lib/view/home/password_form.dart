@@ -94,11 +94,13 @@ class _PasswordFormState extends State<PasswordForm> {
   Widget build(BuildContext context) {
     PasswordProvider passwordProvider = Provider.of<PasswordProvider>(context);
     return AlertDialog(
-      title: Text((widget.isEdit)
-          ? "Add New Password"
-          : (isEditable)
-              ? "Update Password"
-              : "Password"),
+      title: Text(
+        (widget.isEdit)
+            ? "Add New Password"
+            : (isEditable)
+                ? "Update Password"
+                : "Password",
+      ),
       content: Container(
         width: double.maxFinite,
         child: Form(
@@ -111,10 +113,17 @@ class _PasswordFormState extends State<PasswordForm> {
                 controller: siteController,
                 readOnly: !isEditable,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    hintText: "Enter site/app",
-                    prefixIcon: Icon(Icons.public)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  hintText: "Enter site/app",
+                  prefixIcon: Icon(Icons.public),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter site/app name';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 10),
 
@@ -123,32 +132,39 @@ class _PasswordFormState extends State<PasswordForm> {
                 controller: usernameController,
                 readOnly: !isEditable,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    hintText: "Enter username/email",
-                    prefixIcon: Icon(Icons.person),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (isUsernameNotEmpty)
-                          IconButton(
-                            onPressed: () {
-                              log("Copy Username");
-                              Clipboard.setData(ClipboardData(
-                                      text: usernameController.text))
-                                  .then(
-                                (value) {
-                                  log("Copied: ${usernameController.text}");
-                                  ToastMsg.showToastMsg(
-                                      msg:
-                                          "Copied: ${usernameController.text}");
-                                },
-                              );
-                            },
-                            icon: Icon(Icons.copy),
-                          ),
-                      ],
-                    )),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  hintText: "Enter username/email",
+                  prefixIcon: Icon(Icons.person),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (isUsernameNotEmpty)
+                        IconButton(
+                          onPressed: () {
+                            log("Copy Username");
+                            Clipboard.setData(ClipboardData(
+                                    text: usernameController.text))
+                                .then(
+                              (value) {
+                                log("Copied: ${usernameController.text}");
+                                ToastMsg.showToastMsg(
+                                    msg: "Copied: ${usernameController.text}");
+                              },
+                            );
+                          },
+                          icon: Icon(Icons.copy),
+                        ),
+                    ],
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter username (i.e., email, mobile no., etc)';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 10),
 
@@ -193,6 +209,12 @@ class _PasswordFormState extends State<PasswordForm> {
                     ],
                   ),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter password';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 10),
 

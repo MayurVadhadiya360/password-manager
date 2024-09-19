@@ -50,6 +50,16 @@ class AuthService {
     }
   }
 
+  // forfot password
+  static Future<String> forgotPassword(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      return "Password reset link sent to your email!";
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
   // logout the user
   static Future logout() async {
     await FirebaseAuth.instance.signOut();

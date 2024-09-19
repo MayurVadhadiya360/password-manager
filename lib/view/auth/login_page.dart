@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:password_manager/services/auth_service.dart';
@@ -12,8 +13,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController forgotpasswordEmailController = TextEditingController();
 
   bool passwordObscure = true;
   bool isLoading = false;
@@ -26,90 +29,102 @@ class _LoginPageState extends State<LoginPage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(18.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // App Logo
-              CircleAvatar(
-                backgroundColor: Colors.white,
-                foregroundImage: AssetImage((isDark)
-                    ? "assets/app-logo-outlined.png"
-                    : "assets/app-logo-filled.png"),
-                radius: 80,
-              ),
-
-              const SizedBox(height: 20),
-
-              ElevatedButton(
-                onPressed: () async {
-                  log("sign_in_with_google");
-                  await AuthService.signInWithGoogle().then(
-                    (value) {
-                      if (value == "Login Successful") {
-                        ToastMsg.showToastMsg(msg: value, status: "success");
-
-                        Navigator.pushReplacementNamed(context, "/home");
-                      } else {
-                        ToastMsg.showToastMsg(msg: value, status: "error");
-                      }
-                    },
-                  );
-                },
-                child: Container(
-                  width: 240, // Maximum width of the button
-                  height: 60, // Maximum height of the button
-                  child: Image.asset(
-                    "assets/sign_in_with_google.jpg",
-                    fit: BoxFit
-                        .contain, // Scales the image to fit within the bounds while maintaining its aspect ratio
-                  ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // App Logo
+                CircleAvatar(
+                  backgroundColor: Colors.white,
+                  foregroundImage: AssetImage((isDark)
+                      ? "assets/app-logo-outlined.png"
+                      : "assets/app-logo-filled.png"),
+                  radius: 80,
                 ),
-              ),
-              // fixed height(space) with sized box
-              const SizedBox(height: 20),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: Divider(thickness: 1.0),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      "OR",
-                      style: TextStyle(fontSize: 16.0),
+                if (!Platform.isWindows) const SizedBox(height: 20),
+
+                // sign in with google
+                if (!Platform.isWindows)
+                  ElevatedButton(
+                    onPressed: () async {
+                      log("sign_in_with_google");
+                      await AuthService.signInWithGoogle().then(
+                        (value) {
+                          if (value == "Login Successful") {
+                            ToastMsg.showToastMsg(
+                                msg: value, status: "success");
+
+                            Navigator.pushReplacementNamed(context, "/home");
+                          } else {
+                            ToastMsg.showToastMsg(msg: value, status: "error");
+                          }
+                        },
+                      );
+                    },
+                    child: Container(
+                      width: 240, // Maximum width of the button
+                      height: 60, // Maximum height of the button
+                      child: Image.asset(
+                        "assets/sign_in_with_google.jpg",
+                        fit: BoxFit
+                            .contain, // Scales the image to fit within the bounds while maintaining its aspect ratio
+                      ),
                     ),
                   ),
-                  Expanded(
-                    child: Divider(thickness: 1.0),
+
+                // fixed height(space) with sized box
+                if (!Platform.isWindows) const SizedBox(height: 20),
+
+                if (!Platform.isWindows)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Divider(thickness: 1.0),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          "OR",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(thickness: 1.0),
+                      ),
+                    ],
                   ),
-                ],
-              ),
 
-              // fixed height(space) with sized box
-              const SizedBox(height: 20),
+                // fixed height(space) with sized box
+                const SizedBox(height: 20),
 
-              // email input
-              TextFormField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  label: Text("Email"),
-                  hintText: "Enter you email",
-                  alignLabelWithHint: true,
-                  prefixIcon: Icon(Icons.email),
+                // email input
+                TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    label: Text("Email"),
+                    hintText: "Enter you email",
+                    alignLabelWithHint: true,
+                    prefixIcon: Icon(Icons.email),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an email';
+                    }
+                    return null;
+                  },
                 ),
-              ),
 
-              // fixed height(space) with sized box
-              const SizedBox(height: 10),
+                // fixed height(space) with sized box
+                const SizedBox(height: 10),
 
-              // password input
-              TextFormField(
-                obscureText: passwordObscure,
-                controller: passwordController,
-                decoration: InputDecoration(
+                // password input
+                TextFormField(
+                  obscureText: passwordObscure,
+                  controller: passwordController,
+                  decoration: InputDecoration(
                     border: const OutlineInputBorder(),
                     label: const Text("Password"),
                     hintText: "Enter you password",
@@ -124,91 +139,157 @@ class _LoginPageState extends State<LoginPage> {
                       child: (passwordObscure)
                           ? const Icon(Icons.visibility)
                           : const Icon(Icons.visibility_off),
-                    )),
-              ),
-
-              // fixed height(space) with sized box
-              // const SizedBox(height: 10),
-
-              // forgot password
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    log("Forgot Password!");
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter password';
+                    }
+                    return null;
                   },
-                  child: const Text("Forgot Password?"),
                 ),
-              ),
 
-              // auth action button
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
+                // fixed height(space) with sized box
+                // const SizedBox(height: 10),
+
+                // forgot password
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
                     onPressed: () async {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      await AuthService.loginWithEmail(
-                              emailController.text, passwordController.text)
-                          .then((value) {
-                        if (value == "Login Successful") {
-                          ToastMsg.showToastMsg(msg: value, status: "success");
-                          setState(() {
-                            isLoading = false;
-                          });
-
-                          Navigator.pushReplacementNamed(context, "/home");
-                        } else {
-                          ToastMsg.showToastMsg(msg: value, status: "error");
-                        }
-                      });
-                      setState(() {
-                        isLoading = false;
-                      });
-                    },
-                    child: (!isLoading)
-                        ? const Text(
-                            "Login",
-                            style: TextStyle(fontSize: 18),
-                          )
-                        : const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: 25,
-                                width: 25,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 3),
+                      log("Forgot Password!");
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text("Reset Password!"),
+                              content: Container(
+                                width: double.maxFinite,
+                                child: Form(
+                                  key: _formKey1,
+                                  child: TextFormField(
+                                    controller: forgotpasswordEmailController,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15)),
+                                      hintText: "Enter username/email",
+                                      prefixIcon: Icon(Icons.person),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter email';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
                               ),
-                              SizedBox(width: 10),
-                              Text("Logging in..."),
-                            ],
-                          )),
-              ),
+                              actionsAlignment: MainAxisAlignment.spaceBetween,
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    if (_formKey1.currentState!.validate()) {
+                                      String response =
+                                          await AuthService.forgotPassword(
+                                              forgotpasswordEmailController
+                                                  .text);
+                                      if (response ==
+                                          "Password reset link sent to your email!") {
+                                        ToastMsg.showToastMsg(msg: response);
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        ToastMsg.showToastMsg(
+                                            msg: response, status: "error");
+                                      }
+                                    }
+                                  },
+                                  child: Text("Confirm"),
+                                )
+                              ],
+                            );
+                          });
+                    },
+                    child: const Text("Forgot Password?"),
+                  ),
+                ),
 
-              // fixed height(space) with sized box
-              const SizedBox(height: 10),
+                // auth action button
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        await AuthService.loginWithEmail(
+                                emailController.text, passwordController.text)
+                            .then((value) {
+                          if (value == "Login Successful") {
+                            ToastMsg.showToastMsg(
+                                msg: value, status: "success");
+                            setState(() {
+                              isLoading = false;
+                            });
 
-              // auth footer
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text("Don't have an account?"),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, "/signup");
+                            Navigator.pushReplacementNamed(context, "/home");
+                          } else {
+                            ToastMsg.showToastMsg(msg: value, status: "error");
+                          }
+                        });
+                        setState(() {
+                          isLoading = false;
+                        });
                       },
-                      child: const Text(
-                        "Register",
-                        style: TextStyle(fontWeight: FontWeight.w800),
-                      )),
-                ],
-              ),
-            ],
+                      child: (!isLoading)
+                          ? const Text(
+                              "Login",
+                              style: TextStyle(fontSize: 18),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 3),
+                                ),
+                                SizedBox(width: 10),
+                                Text("Logging in..."),
+                              ],
+                            )),
+                ),
+
+                // fixed height(space) with sized box
+                const SizedBox(height: 10),
+
+                // auth footer
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account?"),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "/signup");
+                        },
+                        child: const Text(
+                          "Register",
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        )),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
