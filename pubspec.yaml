@@ -45,6 +45,9 @@ dependencies:
   favicon: ^1.1.2
   encrypt: ^5.0.3
   crypto: ^3.0.5
+  url_launcher: ^6.3.0
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
 
 dev_dependencies:
   flutter_test:

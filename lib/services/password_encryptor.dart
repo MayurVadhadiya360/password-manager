@@ -39,7 +39,7 @@ class PasswordEncryptor {
 
     // Encrypt the text
     final encrypted = encrypter.encrypt(value, iv: iv);
-    print('Encrypted: ${encrypted.base64}');
+    // print('Encrypted: ${encrypted.base64}');
     return encrypted.base64;
   }
 
@@ -58,7 +58,7 @@ class PasswordEncryptor {
 
     // Decrypt the text
     final decrypted = encrypter.decrypt(encrypted, iv: iv);
-    print('Decrypted: $decrypted');
+    // print('Decrypted: $decrypted');
     return decrypted;
   }
 }

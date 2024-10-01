@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:password_manager/services/auth_service.dart';
+import 'package:password_manager/services/google_signin_desktop.dart';
 import 'package:password_manager/utils/toast_msg.dart';
 
 class LoginPage extends StatefulWidget {
@@ -20,6 +21,36 @@ class _LoginPageState extends State<LoginPage> {
 
   bool passwordObscure = true;
   bool isLoading = false;
+  bool localServerStarted = false;
+
+  LocalServer localServer = LocalServer();
+
+  @override
+  void initState() {
+    if (Platform.isWindows) {
+      localServer.initializeLocalServer(context).then(
+        (value) {
+          setState(() {
+            localServerStarted = value;
+          });
+        },
+      );
+    }
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    forgotpasswordEmailController.dispose();
+    if (Platform.isWindows) {
+      localServer.closeServer();
+    }
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +74,12 @@ class _LoginPageState extends State<LoginPage> {
                   radius: 80,
                 ),
 
-                if (!Platform.isWindows) const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // sign in with google
                 if (!Platform.isWindows)
-                  ElevatedButton(
-                    onPressed: () async {
+                  GestureDetector(
+                    onTap: () async {
                       log("sign_in_with_google");
                       await AuthService.signInWithGoogle().then(
                         (value) {
@@ -66,35 +97,64 @@ class _LoginPageState extends State<LoginPage> {
                     child: Container(
                       width: 240, // Maximum width of the button
                       height: 60, // Maximum height of the button
-                      child: Image.asset(
-                        "assets/sign_in_with_google.jpg",
-                        fit: BoxFit
-                            .contain, // Scales the image to fit within the bounds while maintaining its aspect ratio
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        image: DecorationImage(
+                          image: AssetImage("ssets/sign_in_with_google.jpg"),
+                        ),
                       ),
+                      // child: Image.asset(
+                      //   "assets/sign_in_with_google.jpg",
+                      //   // Scales the image to fit within the bounds while maintaining its aspect ratio
+                      //   fit: BoxFit.contain,
+                      // ),
+                    ),
+                  ),
+
+                // sign in with google desktop
+                if (Platform.isWindows)
+                  GestureDetector(
+                    onTap: () async {
+                      log("sing in with google desktop");
+                      if (localServerStarted) {
+                        await googleSigninWithWeb();
+                      }
+                    },
+                    child: Container(
+                      width: 240, // Maximum width of the button
+                      height: 60, // Maximum height of the button
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        image: DecorationImage(
+                          image: AssetImage("assets/sign_in_with_google.jpg"),
+                        ),
+                      ),
+                      child: (!localServerStarted)
+                          ? Center(child: CircularProgressIndicator())
+                          : null,
                     ),
                   ),
 
                 // fixed height(space) with sized box
-                if (!Platform.isWindows) const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-                if (!Platform.isWindows)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Divider(thickness: 1.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(thickness: 1.0),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(
+                        "OR",
+                        style: TextStyle(fontSize: 16.0),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          "OR",
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(thickness: 1.0),
-                      ),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      child: Divider(thickness: 1.0),
+                    ),
+                  ],
+                ),
 
                 // fixed height(space) with sized box
                 const SizedBox(height: 20),
