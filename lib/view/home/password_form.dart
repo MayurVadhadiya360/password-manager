@@ -114,6 +114,7 @@ class _PasswordFormState extends State<PasswordForm> {
               TextFormField(
                 controller: siteController,
                 readOnly: !isEditable,
+                showCursor: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15)),
@@ -133,6 +134,7 @@ class _PasswordFormState extends State<PasswordForm> {
               TextFormField(
                 controller: usernameController,
                 readOnly: !isEditable,
+                showCursor: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15)),
@@ -174,6 +176,7 @@ class _PasswordFormState extends State<PasswordForm> {
               TextFormField(
                 controller: passwordController,
                 readOnly: !isEditable,
+                showCursor: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15)),
@@ -224,6 +227,7 @@ class _PasswordFormState extends State<PasswordForm> {
               TextFormField(
                 controller: noteController,
                 readOnly: !isEditable,
+                showCursor: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15)),

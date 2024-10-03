@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -28,13 +30,15 @@ class ToastMsg {
         break;
     }
 
-    Fluttertoast.cancel();
-    Fluttertoast.showToast(
-      msg: msg,
-      gravity: ToastGravity.BOTTOM,
-      toastLength: Toast.LENGTH_SHORT,
-      backgroundColor: backgroundColor,
-      textColor: textColor,
-    );
+    if (!Platform.isWindows) {
+      Fluttertoast.cancel();
+      Fluttertoast.showToast(
+        msg: msg,
+        gravity: ToastGravity.BOTTOM,
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+      );
+    }
   }
 }

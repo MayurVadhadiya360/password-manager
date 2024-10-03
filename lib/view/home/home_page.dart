@@ -250,6 +250,7 @@ class _HomePageState extends State<HomePage> {
                 child: CircularProgressIndicator(),
               )
             : Container(
+              margin: EdgeInsets.only(top: 5, bottom: 55),
                 child: (passwordProvider.passwords.isEmpty)
                     ? Center(
                         child: Text(
@@ -261,8 +262,9 @@ class _HomePageState extends State<HomePage> {
                           PasswordModel passwordData =
                               passwordProvider.passwords[index];
 
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
+                          return Container(
+                            // padding: const EdgeInsets.all(2.0),
+                            margin: EdgeInsets.all(5),
                             child: GestureDetector(
                               onLongPressStart: (details) {
                                 _showContextMenu(
@@ -289,14 +291,23 @@ class _HomePageState extends State<HomePage> {
                                 title: Text(
                                   passwordData.site!,
                                   style: TextStyle(fontSize: 24),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                subtitle: Text(passwordData.username!),
+                                subtitle: Text(
+                                  passwordData.username!,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                                 leading: CircleAvatar(
                                   backgroundColor: Theme.of(context)
                                       .primaryColorLight
                                       .withOpacity(0.6),
                                   child: (passwordData.faviconUrl != null)
-                                      ? Image.network(passwordData.faviconUrl!)
+                                      ? Image.network(
+                                          passwordData.faviconUrl!,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Icon(Icons.public),
+                                        )
                                       : Icon(Icons.public),
                                 ),
                                 trailing: IconButton(
