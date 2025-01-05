@@ -11,11 +11,25 @@ import 'package:uuid/uuid.dart';
 class PasswordProvider extends ChangeNotifier {
   // User _user = FirebaseAuth.instance.currentUser!;
   Uuid _uuid = Uuid();
+  String? username;
+  String? email;
+  int passwordLen = 16;
   List<PasswordModel> passwords = [];
   bool isLoading = false;
 
   PasswordProvider() {
+    fetchUserData();
     fetchPassword();
+  }
+
+  Future<void> fetchUserData() async {
+    User _user = FirebaseAuth.instance.currentUser!;
+    final userData = await DBService.getUserData(_user.uid);
+    username = userData['username'];
+    email = userData['email'];
+    passwordLen = userData['pwd_len'];
+    dev.log("$username $email $passwordLen !");
+    notifyListeners();
   }
 
   Future<void> fetchPassword() async {
@@ -34,6 +48,31 @@ class PasswordProvider extends ChangeNotifier {
     passwords = tempPasswords;
     isLoading = false;
     notifyListeners();
+  }
+
+  List<PasswordModel> filterPasswords(String sQuery) {
+    List<PasswordModel> filteredPasswords = passwords.where(
+      (element) {
+        bool filter = false;
+
+        if (element.site != null) {
+          filter = filter ||
+              element.site!.toLowerCase().contains(sQuery.toLowerCase());
+        }
+
+        if (element.username != null) {
+          filter = filter ||
+              element.username!.toLowerCase().contains(sQuery.toLowerCase());
+        }
+
+        if (element.note != null) {
+          filter = filter ||
+              element.note!.toLowerCase().contains(sQuery.toLowerCase());
+        }
+        return filter;
+      },
+    ).toList();
+    return filteredPasswords;
   }
 
   Future<void> add_password({
@@ -176,9 +215,12 @@ class PasswordProvider extends ChangeNotifier {
     }
   }
 
-  String generateSecurePassword(int length) {
-    if (length < 4) {
-      length = 4;
+  String generateSecurePassword({int? length}) {
+    if (length == null) {
+      length = passwordLen;
+    }
+    if (length < 6) {
+      length = 6;
     }
     final Random random = Random.secure();
 
@@ -212,5 +254,18 @@ class PasswordProvider extends ChangeNotifier {
 
     // Shuffle the password to ensure randomness
     return _shuffleString(password);
+  }
+
+  Future<bool> updatePasswordLen(int newPwdLen) async {
+    User _user = FirebaseAuth.instance.currentUser!;
+    bool success = await DBService.updatePswLen(_user.uid, newPwdLen);
+    if (success) {
+      passwordLen = newPwdLen;
+      dev.log('Password length updated successfully');
+    } else {
+      dev.log('Failed to update password length');
+    }
+    notifyListeners();
+    return success;
   }
 }

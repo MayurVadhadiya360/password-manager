@@ -10,6 +10,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart' as shelf_router;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class GoogleSignInArgs {
   const GoogleSignInArgs({
@@ -169,6 +170,20 @@ class LocalServer {
       }
 
       return Response.notFound('Invalid parameters.', headers: _headers);
+    });
+
+    // Route to serve an HTML file
+    app.get('/password-manager/signin-result', (Request request) async {
+      try {
+        // Load the HTML content from assets
+        final htmlContent = await rootBundle
+            .loadString('assets/html/google_signin_success.html');
+
+        return Response.ok(htmlContent, headers: {'Content-Type': 'text/html'});
+      } catch (e) {
+        return Response.internalServerError(
+            body: 'Error loading HTML file from assets: $e');
+      }
     });
 
     try {

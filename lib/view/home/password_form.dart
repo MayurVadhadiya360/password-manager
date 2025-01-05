@@ -182,11 +182,8 @@ class _PasswordFormState extends State<PasswordForm> {
                       borderRadius: BorderRadius.circular(15)),
                   hintText: "Enter password",
                   prefixIcon: Icon(Icons.lock),
-                  suffixIcon: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (isPasswordNotEmpty)
-                        IconButton(
+                  suffixIcon: (isPasswordNotEmpty)
+                      ? IconButton(
                           onPressed: () {
                             log("Copy Password");
                             Clipboard.setData(ClipboardData(
@@ -200,19 +197,27 @@ class _PasswordFormState extends State<PasswordForm> {
                             );
                           },
                           icon: Icon(Icons.copy),
-                        ),
-                      if (isEditable && widget.showPasswordGeneratorIcon)
-                        IconButton(
-                          tooltip: "Generate Password",
-                          onPressed: () {
-                            log("Generate Password");
-                            passwordController.text = widget.passwordProvider
-                                .generateSecurePassword(16);
-                          },
-                          icon: Icon(Icons.insights),
-                        ),
-                    ],
-                  ),
+                        )
+                      : (isEditable)
+                          ? IconButton(
+                              tooltip: "Generate Password",
+                              onPressed: () {
+                                log("Generate Password");
+                                passwordController.text = widget
+                                    .passwordProvider
+                                    .generateSecurePassword();
+                              },
+                              icon: Icon(Icons.insights),
+                            )
+                          : null,
+                  //       Row(
+                  //   mainAxisSize: MainAxisSize.min,
+                  //   children: [
+                  //     if
+                  //      if (isEditable && widget.showPasswordGeneratorIcon && !isPasswordNotEmpty)
+
+                  //   ],
+                  // ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -242,15 +247,12 @@ class _PasswordFormState extends State<PasswordForm> {
       actions: [
         TextButton(
           onPressed: () {
-            if (widget.isEdit) {
-              Navigator.of(context).pop();
-            } else if (isEditable) {
+            if (isEditable) {
               setState(() {
                 isEditable = false;
               });
-            } else {
-              Navigator.of(context).pop();
             }
+            Navigator.of(context).pop();
           },
           child: Text("Cancel"),
         ),

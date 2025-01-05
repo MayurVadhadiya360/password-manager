@@ -48,4 +48,3 @@ lib/firebase_options.dart
 android/app/google-services.json
 lib/services/client_secret_653604321113-vni5dt1jmh35nm1d8v28qmbokuogp0ab.apps.googleusercontent.com.json
 lib/services/env_values.dart
-html

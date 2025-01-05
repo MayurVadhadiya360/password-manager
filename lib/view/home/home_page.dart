@@ -1,11 +1,10 @@
 import 'dart:developer';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:password_manager/providers/password_model.dart';
 import 'package:password_manager/providers/password_provider.dart';
-import 'package:password_manager/services/auth_service.dart';
+import 'package:password_manager/view/home/drawer_view.dart';
 import 'package:password_manager/view/home/password_form.dart';
 import 'package:provider/provider.dart';
 
@@ -25,9 +24,6 @@ class _BasePageState extends State<BasePage> {
           create: (context) => PasswordProvider(),
         ),
       ],
-      // builder: (context, child) {
-      //   return HomePage();
-      // },
       child: HomePage(),
     );
   }
@@ -41,6 +37,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String _searchQuery = "";
+
   Future<void> showAddPasswordDialog(
       BuildContext context, PasswordProvider passwordProvider) async {
     return await showDialog(
@@ -212,148 +210,138 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     PasswordProvider passwordProvider = Provider.of<PasswordProvider>(context);
+    List<PasswordModel> filteredPasswords =
+        passwordProvider.filterPasswords(_searchQuery);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          iconTheme: IconThemeData(color: Colors.white),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 "Password Manager",
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
               Text(
-                '${FirebaseAuth.instance.currentUser!.email}',
-                style: TextStyle(
-                  fontSize: 14,
-                ),
+                "${passwordProvider.email}",
+                style: TextStyle(fontSize: 14, color: Colors.white),
               ),
             ],
           ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: GestureDetector(
-                  onTap: () async {
-                    await AuthService.logout();
-                    Navigator.pushReplacementNamed(context, "/login");
-                  },
-                  child: const Icon(Icons.logout)),
-            )
-          ],
         ),
+        drawer: DrawerView(),
         body: (passwordProvider.isLoading == true)
             ? Center(
                 child: CircularProgressIndicator(),
               )
             : Container(
-              margin: EdgeInsets.only(top: 5, bottom: 55),
+                margin: EdgeInsets.only(top: 5, bottom: 55),
                 child: (passwordProvider.passwords.isEmpty)
                     ? Center(
                         child: Text(
                           "No passwords yet!",
+                          style: TextStyle(fontSize: 16),
                         ),
                       )
-                    : ListView.builder(
-                        itemBuilder: (context, index) {
-                          PasswordModel passwordData =
-                              passwordProvider.passwords[index];
-
-                          return Container(
-                            // padding: const EdgeInsets.all(2.0),
-                            margin: EdgeInsets.all(5),
-                            child: GestureDetector(
-                              onLongPressStart: (details) {
-                                _showContextMenu(
-                                  context,
-                                  details.globalPosition,
-                                  index,
-                                  passwordData,
-                                );
+                    : Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextField(
+                              onChanged: (val) {
+                                setState(() {
+                                  _searchQuery = val;
+                                });
+                                log(_searchQuery);
                               },
-                              child: ListTile(
-                                tileColor: Theme.of(context).splashColor,
-                                shape: StadiumBorder(),
-                                onTap: () async {
-                                  await showUpdatablePasswordDialog(
-                                    context,
-                                    passwordProvider,
-                                    id: passwordData.id,
-                                    initSite: passwordData.site,
-                                    initUsername: passwordData.username,
-                                    initialPassword: passwordData.password,
-                                    initialNote: passwordData.note,
-                                  );
-                                },
-                                title: Text(
-                                  passwordData.site!,
-                                  style: TextStyle(fontSize: 24),
-                                  overflow: TextOverflow.ellipsis,
+                              onTapOutside: (event) {
+                                FocusScope.of(context).unfocus();
+                              },
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(100)),
                                 ),
-                                subtitle: Text(
-                                  passwordData.username!,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                leading: CircleAvatar(
-                                  backgroundColor: Theme.of(context)
-                                      .primaryColorLight
-                                      .withOpacity(0.6),
-                                  child: (passwordData.faviconUrl != null)
-                                      ? Image.network(
-                                          passwordData.faviconUrl!,
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  Icon(Icons.public),
-                                        )
-                                      : Icon(Icons.public),
-                                ),
-                                trailing: IconButton(
-                                  icon: Icon(Icons.delete),
-                                  color: Colors.red,
-                                  onPressed: () {
-                                    log("delete: ${passwordData.id}");
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: FittedBox(
-                                              fit: BoxFit.scaleDown,
-                                              child: Text(
-                                                  "Are you sure want to delete password?")),
-                                          // content: Text(
-                                          //     "Are you sure want to delete password?"),
-                                          actionsAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          actions: [
-                                            OutlinedButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: Text("Cancel"),
-                                            ),
-                                            FilledButton(
-                                              onPressed: () async {
-                                                await passwordProvider
-                                                    .delete_password(
-                                                        passwordData.id);
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: Text("Confirm"),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
+                                hintText: "Search",
+                                prefixIcon: const Icon(Icons.search),
                               ),
                             ),
-                          );
-                        },
-                        itemCount: passwordProvider.passwords.length,
+                          ),
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: filteredPasswords.length,
+                              itemBuilder: (context, index) {
+                                PasswordModel passwordData =
+                                    filteredPasswords[index];
+
+                                return Container(
+                                  // padding: const EdgeInsets.all(2.0),
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 5),
+                                  child: GestureDetector(
+                                    onLongPressStart: (details) {
+                                      _showContextMenu(
+                                        context,
+                                        details.globalPosition,
+                                        index,
+                                        passwordData,
+                                      );
+                                    },
+                                    child: Material(
+                                      child: ListTile(
+                                        tileColor:
+                                            Theme.of(context).splashColor,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15)),
+                                        onTap: () async {
+                                          await showUpdatablePasswordDialog(
+                                            context,
+                                            passwordProvider,
+                                            id: passwordData.id,
+                                            initSite: passwordData.site,
+                                            initUsername: passwordData.username,
+                                            initialPassword:
+                                                passwordData.password,
+                                            initialNote: passwordData.note,
+                                          );
+                                        },
+                                        title: Text(
+                                          passwordData.username!,
+                                          style: TextStyle(fontSize: 21),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        subtitle: Text(
+                                          passwordData.site!,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        leading: CircleAvatar(
+                                          backgroundColor: Theme.of(context)
+                                              .primaryColorLight
+                                              .withOpacity(0.6),
+                                          child:
+                                              (passwordData.faviconUrl != null)
+                                                  ? Image.network(
+                                                      passwordData.faviconUrl!,
+                                                      errorBuilder: (context,
+                                                              error,
+                                                              stackTrace) =>
+                                                          Icon(Icons.public),
+                                                    )
+                                                  : Icon(Icons.public),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
               ),
         floatingActionButton: FloatingActionButton(
